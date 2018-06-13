@@ -186,19 +186,23 @@ const app = new Vue({
     },
     classifyAdd(){
       if(this.classifyAddType.trim().length > 0){
-        this.navList[this.navList.length] = this.classifyAddType;
-        let params = new URLSearchParams();
-        params.append('cname', this.uname);
-        params.append('types', this.navList);
+        if(this.navList.indexOf(this.classifyAddType) > -1){
+          alert('标题已存在！');
+        }else{
+          this.navList[this.navList.length] = this.classifyAddType;
+          let params = new URLSearchParams();
+          params.append('cname', this.uname);
+          params.append('types', this.navList);
 
-        axios.post("data/classify-delete.php",params).then((response)=>{
-          if(response.data.msg.indexOf("成功") > -1){
-            alert("添加成功！");
-            window.location.reload();
-          }
-        }).catch((error)=>{
-          console.log(error)
-        })
+          axios.post("data/classify-delete.php",params).then((response)=>{
+            if(response.data.msg.indexOf("成功") > -1){
+              alert("添加成功！");
+              window.location.reload();
+            }
+          }).catch((error)=>{
+            console.log(error)
+          })
+        }
       }else{
         alert("添加的标题不能为空！")
       }
