@@ -3,4 +3,4 @@
 
 note1是用原生js ,note2是用vue2。
 
-页面展示：<a href='http://note.xiongkun.top' target='_blank'>点击</a>
+
