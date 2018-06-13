@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+				content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+	<meta content="yes" name="apple-mobile-web-app-capable">
+	<meta content="black" name="apple-mobile-web-app-status-bar-style">
+	<meta content="telephone=no" name="format-detection">
+	<link rel="icon" href="img/note.ico"/>
+	<title>注册</title>
+	<link rel="stylesheet" href="css/note.css">
+</head>
+<body>
+<div id="app" class="modal">
+	<div class="login">
+		<form action="data/register.php">
+			<div class="input-group">
+				<input id="uname" type="text" name="uname" placeholder="请输入账号" v-model="uname" autofocus v-on:focus="checkMsg=''" v-on:blur="check">
+				<span class="tip">{{this.checkMsg}}</span>
+			</div>
+			<div class="input-group">
+				<input id="upassword" type="password" name="upassword" placeholder="请输入8~16英文和数字组合的密码" v-model="upassword">
+			</div>
+			<div class="btn-login" v-on:click="submit">提交</div>
+		</form>
+	</div>
+	<div v-if="loading" id="loading">
+		<div class="content">
+			<img src="img/icon-loading.gif" alt="">
+			<p class="text">提交验证中</p>
+		</div>
+	</div>
+</div>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+  var app = new Vue({
+    el:"#app",
+    data:{
+      uname:"",
+      upassword:"",
+			checkMsg:'',
+			loading:false
+    },
+    mounted:function () {
+      this.keyDown();
+    },
+    methods:{
+      check(){
+				axios.get('./data/check-account.php?uname='+this.uname).then((response) => {
+				  const arr = response.data;
+					for(let i = 0,len = arr.length;i< len;i++ ){
+					  if(arr[i]){
+					    this.checkMsg = '账户已存在';
+					    break;
+						}else {
+					    this.checkMsg = ''
+						}
+					}
+				}).catch((error) => {console.log(error)});
+			},
+      submit(){
+        this.check();
+				if(this.checkMsg.trim().length > 1){
+					alert('请重新填写账号！');
+				}else{
+					let check = /^.{6,12}$/.test(this.upassword)&&/^.*[0-9].*$/.test(this.upassword)&&/^.*[A-Za-z].*$/.test(this.upassword);
+					// 判断是否为空
+					if(this.uname.trim().length < 1){
+						alert('请输入用户名！');
+					}else{
+            this.loading = true;
+						setTimeout(() => {
+							if(this.checkMsg.trim().length > 1){
+                alert('请重新填写账号！');
+                this.loading = false;
+							}else{
+                if(check){
+                  axios.get('./data/register.php?uname='+this.uname+'&upassword='+this.upassword)
+                    .then((response) => {
+                      alert(response.data.msg);
+                      this.loading = false;
+                      if(response.data.msg.indexOf('成功') > -1){
+                        window.location.href = 'login.html';
+                      }
+                    }).catch((error) => {console.log(error)});
+                }else{
+                  alert('请输入正确格式的密码,必须包含英文和字母！');
+                  this.loading = false;
+                }
+							}
+						},3000);
+					}
+				}
+			},
+      keyDown(){
+        document.onkeydown=function(event){
+          var e = event || window.event || arguments.callee.caller.arguments[0];
+          if(e && e.keyCode===13){
+            app.submit();
+          }
+        };
+			}
+    }
+  });
+</script>
+</body>
+</html>
